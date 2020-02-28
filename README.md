@@ -4,6 +4,9 @@
 - nestjs学习
 
 ## Done
+- nestjs学习
+  - 总结文章
+  - 项目代码地址 
 
 ## Target
 
@@ -12,7 +15,7 @@
 
 ### 框架/库
 - nestjs学习
-- 基于 React 组件库
+- 基于 React 的组件库
 - 基于 Vue3 的组件库
 - 设计一个前端状态管理库
 - 实现一个轻量级的 React-like 框架，参考 Fre
