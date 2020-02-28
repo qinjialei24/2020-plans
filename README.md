@@ -1,12 +1,12 @@
 # 2020-plans
 
 ## Doing
-- nestjs学习
+- nestjs学习（20202-28 至 ）
   - 路由
   - 
 
 ## Done
-- nestjs学习（20202-28 至 ）
+- nestjs学习
   - 总结文章
   - 项目代码地址 
 
