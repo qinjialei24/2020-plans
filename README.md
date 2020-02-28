@@ -9,7 +9,6 @@
 - 实现一个轻量级的 React-like 框架，参考 Fre
   - router
   - diff算法
-  - vuex
   - hooks
 - 实现一个轻量级的 Vue-like 框架
   - router
