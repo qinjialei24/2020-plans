@@ -2,6 +2,8 @@
 
 ## Doing
 - nestjs学习
+  - 路由
+  - 
 
 ## Done
 - nestjs学习（20202-28 至 ）
