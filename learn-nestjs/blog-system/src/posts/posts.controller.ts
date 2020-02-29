@@ -1,7 +1,6 @@
 import { PostModel } from './post.model';
 import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
-
 class CreatePostDto {
   @ApiProperty({ description: '帖子详情' })
   title: string
@@ -28,14 +27,12 @@ export class PostsController {
   }
 
   @Post()
-  @ApiOperation({
-    summary: '创建帖子'
-  })
-
-  @Post()
   @ApiOperation({ summary: '创建帖子' })
-  create(@Body() body: CreatePostDto) {
-    return body
+  async create(@Body() createPostDto: CreatePostDto) {
+    await PostModel.create(createPostDto)
+    return {
+      success: true
+    }
   }
 
   @Put(':id')
