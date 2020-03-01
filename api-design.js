@@ -1,5 +1,5 @@
+// 第一步 installConfig
 // 在store对象增加属性，无需声明action，方便调用reducer
-// 第一步
 const store = {
   counter: {
     reducer: {
