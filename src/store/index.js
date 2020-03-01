@@ -27,5 +27,4 @@ _store.dispatch = (type, data) => _dispatch({ type, data })
 
 const store = init(_store)
 
-
 export default store

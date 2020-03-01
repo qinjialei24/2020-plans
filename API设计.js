@@ -1,20 +1,23 @@
+// 在store对象增加属性，无需声明action，方便调用reducer
+// 第一步
+const store = {
+  counter: {
+    reducer: {
+      add:'counter/reducer/add'
+    },
+    effect: {
+      asyncAdd:'counter/effect/asyncAdd'
+    },
+  },
+  todo: {
+    reducer: {
+    delete:'todo/reducer/delete'
+  },
+  effect: {
+    asyncDelete:'todo/effect/asyncDelete'
+  },},
+}  
 
-// ## 项目架构
-// 为了更好的扩展性，防止项目代码膨胀后带来的维护问题，推荐分模块建立需要全局管理的状态，例如
-
-// - store
-//   - modules
-//     - counter.js
-//     - todo.js
-
-//定义module
-const module = {
-  namespace: '',
-  state: {},
-  reducer: {},
-  effect: {},
-}
-
-
-
-
+// 第二步
+// 通过字符串分割，判断是reducer还是effect
+// 若是effect，在dispatch的时候当做函数先执行
