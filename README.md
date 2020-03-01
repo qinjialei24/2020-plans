@@ -11,6 +11,6 @@
 
 ## 2020-plans
 
-## ![2020-plansTarget](./imgs/2020-plans.png)
+## ![2020-plansTarget](./2020-plans.png)
 
 
