@@ -52,7 +52,31 @@ const state ={
   }
 }
 
-const componentA =
+```
 
+<!-- slide -->
+```js
+const mapStateToProps = (state, ownProps) => {
+  return {
+    list: state.todo.list,
+    inputValue: state.todo.inputValue,
+  }
+}
 
+const mapDispatchToProps = dispatch => {
+  return {
+    asyncDelete: data => {
+      // dispatch(store.todo.add, data)
+      dispatch(store.todo.asyncDelete, data)
+    },
+    inputChange: data => {
+      dispatch(store.todo.changeInput, data.target.value)
+    },
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Todo)
 ```
