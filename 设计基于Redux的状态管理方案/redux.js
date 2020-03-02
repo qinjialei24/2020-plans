@@ -5,15 +5,15 @@ class Subject {
   subscribe(cb) {
     this.listeners.push(cb)
   }
-  notify() {
+  dispatch() {
     this.listeners.forEach(cb => cb())
   }
 }
 
-const obj = new Subject();
+const store = new Redux();
 
-obj.subscribe(() => {
+store.subscribe(() => {
   console.log('1');
 })
 
-obj.notify()
+store.dispatch()
