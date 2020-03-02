@@ -36,4 +36,23 @@ function changeCount(count) {
 }
 ```
 <!-- slide -->
-sss
+# Redux 的问题
+
+<!-- slide -->
+ - Redux 全局单一 store 的理念导致产生了一颗巨大的状态树，状态树的任意节点更新，将导致所有组件触发更新，即使该组件不依赖该状态
+```js
+const state ={
+  a:{
+    count:0,
+    b:{
+      c:{
+        count:1
+      }
+    }
+  }
+}
+
+const componentA =
+
+
+```
