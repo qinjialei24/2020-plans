@@ -91,17 +91,20 @@ const logMiddleware = (dispatch) => action => {
   console.log(store.getState(), 'next state');
 }
 
-const timeMiddleware = dispatch => action => { 
+const timeMiddleware = dispatch => action => {
   console.log(' new Date().getTime() 的值是：', new Date().getTime());
   dispatch(action)
 }
 
-const thunkMiddleware = dispatch => action => { 
-  if(typeof action ==='function')
-  dispatch(action)
+const thunkMiddleware = dispatch => action => {
+  if (typeof action === 'function') {
+    action(dispatch)
+  } else {
+    dispatch(action)
+  }
 }
 
-store.dispatch =timeMiddleware(logMiddleware(store.dispatch)) 
+store.dispatch = thunkMiddleware(timeMiddleware(logMiddleware(store.dispatch)))
 
 store.subscribe(() => {
   const state = store.getState()
@@ -109,14 +112,21 @@ store.subscribe(() => {
 
 
 
-store.dispatch({
-  type: 'addTodo',
-  payload: '测试'
-})
+// store.dispatch({
+//   type: 'addTodo',
+//   payload: '测试'
+// })
 
-store.dispatch({
-  type: 'add',
-  payload: '测试'
-})
+// store.dispatch({
+//   type: 'add',
+//   payload: '测试'
+// })
 
-console.log('typeof store.dispatch 的值是：',typeof store.dispatch);
+store.dispatch((dispatch) => {
+  setTimeout(() => {
+    dispatch({
+      type: 'add',
+      payload: '测试'
+    })
+  }, 2000);
+})
