@@ -70,21 +70,38 @@ const reducer = combineReducers({
 
 const store = createStore(reducer)
 
-const _dispatch = store.dispatch
+// const _dispatch = store.dispatch
 
-store.dispatch = (action) => {
+// store.dispatch = (action) => {
+//   console.log(store.getState(), 'state');
+//   _dispatch(action)
+//   console.log(store.getState(), 'next state');
+// }
+
+// const _dispatch2 = store.dispatch
+
+// store.dispatch = action => {
+//   console.log(' new Date().getTime() 的值是：', new Date().getTime());
+//   _dispatch2(action)
+// }
+
+const logMiddleware = (dispatch) => action => {
   console.log(store.getState(), 'state');
-  _dispatch(action)
+  dispatch(action)
   console.log(store.getState(), 'next state');
 }
 
-const _dispatch2 = store.dispatch
-
-store.dispatch = action => { 
+const timeMiddleware = dispatch => action => { 
   console.log(' new Date().getTime() 的值是：', new Date().getTime());
-  _dispatch2(action)
+  dispatch(action)
 }
 
+const thunkMiddleware = dispatch => action => { 
+  if(typeof action ==='function')
+  dispatch(action)
+}
+
+store.dispatch =timeMiddleware(logMiddleware(store.dispatch)) 
 
 store.subscribe(() => {
   const state = store.getState()
@@ -101,3 +118,5 @@ store.dispatch({
   type: 'add',
   payload: '测试'
 })
+
+console.log('typeof store.dispatch 的值是：',typeof store.dispatch);
