@@ -70,9 +70,24 @@ const reducer = combineReducers({
 
 const store = createStore(reducer)
 
+const _dispatch = store.dispatch
+
+store.dispatch = (action) => {
+  console.log(store.getState(), 'state');
+  _dispatch(action)
+  console.log(store.getState(), 'next state');
+}
+
+const _dispatch2 = store.dispatch
+
+store.dispatch = action => { 
+  console.log(' new Date().getTime() 的值是：', new Date().getTime());
+  _dispatch2(action)
+}
+
+
 store.subscribe(() => {
   const state = store.getState()
-  console.log("state", state)
 })
 
 
