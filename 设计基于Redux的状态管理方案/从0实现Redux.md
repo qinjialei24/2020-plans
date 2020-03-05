@@ -25,7 +25,7 @@ let state = {
 let listeners = [];
 
 function subscribe(listener) {
-  listeners.push(listener);
+   listeners.push(listener);
 }
 
 function changeCount(count) {
