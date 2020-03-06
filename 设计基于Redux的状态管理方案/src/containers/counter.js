@@ -3,22 +3,24 @@ import Counter from "../components/counter";
 import store from "../store/index";
 
 
-const mapStateToProps = (state, ownProps) => {
-  return {
-    count: state.counter.count
-  }
+const getData = dispatch => {
+  setTimeout(() => {
+    dispatch(store.counter.add)
+  }, 1000);
 }
 
-const mapDispatchToProps = dispatch => {
-  return {
-    add: _ => {
-      dispatch(store.counter.add)
-    },
-    minus: _ => {
-      dispatch(store.counter.minus)
-    },
-  }
-}
+const mapStateToProps = (state, ownProps) => ({
+  count: state.counter.count
+})
+
+const mapDispatchToProps = dispatch => ({
+  add(payload) {
+    dispatch(store.counter.add)
+  },
+  minus() {
+    dispatch(store.counter.minus)
+  },
+})
 
 export default connect(
   mapStateToProps,

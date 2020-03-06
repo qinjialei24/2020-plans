@@ -13,7 +13,6 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = dispatch => {
   return {
     addItem: data => {
-      // dispatch(store.todo.add, data)
       dispatch(store.todo.add)
     },
     inputChange: data => {
