@@ -12,9 +12,9 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    asyncDelete: data => {
+    addItem: data => {
       // dispatch(store.todo.add, data)
-      dispatch(store.todo.asyncDelete, data)
+      dispatch(store.todo.add)
     },
     inputChange: data => {
       dispatch(store.todo.changeInput, data.target.value)

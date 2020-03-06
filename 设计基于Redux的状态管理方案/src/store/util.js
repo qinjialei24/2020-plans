@@ -13,11 +13,11 @@ const getKey = (str, flag) => {
   return str.substring(i + 1, str.length + 1)
 }
 
-export const handleActions = ({ state, action, reducers, namespace = '' }) =>
-  Object.keys(reducers)
+export const handleActions = ({ state, action, reducer, namespace = '' }) =>
+  Object.keys(reducer)
     .map(key => namespace + '/' + key)
     .includes(action.type)
-    ? produce(state, draft => reducers[getKey(action.type, '/')](draft, action))
+    ? produce(state, draft => reducer[getKey(action.type, '/')](draft, action))
     : state
 
 // export const formatModel = ({ state, action, reducer, effect, namespace = '' }) =>
@@ -53,16 +53,15 @@ export const handleEffect = (effect = {}) => {
 
 
 export const createModel = (model) => {
-  const { reducer, effect, namespace } = model
-  const fn = (state = model.state, action) => formatModel({
+  const { reducer, namespace } = model
+  const fn = (state = model.state, action) => handleActions({
     state,
     action,
     reducer,
-    effect,
     namespace
   })
   // 通过 reducer 和 effect 的函数名 生成对应的 action，
-  fn.action = getReducerEffectMap({ ...reducer, ...effect }, namespace)
+  fn.action = getReducerEffectMap(reducer, namespace)
   return fn
 }
 

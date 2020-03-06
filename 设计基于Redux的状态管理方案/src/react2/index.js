@@ -42,3 +42,9 @@ dispatch(store.counter.add)
 
 // 组件异步调用 
 dispatch(store.counter.add)
+
+
+
+const withReducer = reducer => { 
+  
+}
