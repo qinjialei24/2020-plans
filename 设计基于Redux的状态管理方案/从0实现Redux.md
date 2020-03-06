@@ -1,7 +1,7 @@
 ---
 presentation:
 
- theme: simple.css
+ theme: serif.css
  progress: true
 
 ---
@@ -9,6 +9,16 @@ presentation:
 
 <!-- slide -->
 # 从0实现 Redux 
+<!-- slide -->
+## Redux 的核心概念
+- 发布订阅模式
+- `(state,action) => newState`
+<!-- slide -->
+## 发布订阅模式
+
+
+<!-- slide -->
+
 1. 从0实现 Redux 
 2. Redux 的问题
    1. 全局单一 store 的理念导致产生了一颗巨大的状态树，状态树的任意节点更新，将导致所有组件触发更新，即使该组件不依赖该状态
