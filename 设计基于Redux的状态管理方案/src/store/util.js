@@ -1,34 +1,27 @@
 import produce from "immer"
 
-export const getReducerEffectMap = (reducerAndEffect, namespace) => Object.keys(reducerAndEffect)
+const NAME_SPACE_FLAG = '/'
+
+export const getActionMap = (reducerAndEffect, namespace) => Object.keys(reducerAndEffect)
   .reduce((actionMap, actionName) => ({
     ...actionMap,
-    [actionName]: namespace + '/' + actionName
+    [actionName]: namespace + NAME_SPACE_FLAG + actionName
   }), {})
 
-const getKey = (str) => {
-  const i = str.indexOf('/')
-  return str.substring(i + 1, str.length + 1)
-}
+const getKey = (str) => str.substring(str.indexOf(NAME_SPACE_FLAG) + 1, str.length + 1)
 
-export const handleActions = ({ state, action, reducer, namespace = '' }) =>
+export const withReducer = ({ state, action, reducer, namespace = '' }) =>
   Object.keys(reducer)
-    .map(key => namespace + '/' + key)
+    .map(key => namespace + NAME_SPACE_FLAG + key)
     .includes(action.type)
     ? produce(state, draft => reducer[getKey(action.type)](draft, action))
     : state
 
 export const createModel = (model) => {
   const { reducer, namespace } = model
-  const fn = (state = model.state, action) => handleActions({
-    state,
-    action,
-    reducer,
-    namespace
-  })
-  // 通过 reducer 和 effect 的函数名 生成对应的 action，
-  fn.action = getReducerEffectMap(reducer, namespace)
-  return fn
+  const reducerModule = (state = model.state, action) => withReducer({ state, action, reducer, namespace })
+  reducerModule.action = getActionMap(reducer, namespace)
+  return reducerModule
 }
 
 
