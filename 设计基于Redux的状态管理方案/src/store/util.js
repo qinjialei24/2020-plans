@@ -1,8 +1,9 @@
 import produce from "immer"
 
 const NAME_SPACE_FLAG = '/'
+const ACTION_NAME = 'action'
 
-export const getActionMap = (reducerAndEffect, namespace) => Object.keys(reducerAndEffect)
+const getActionMap = (reducerModule, namespace) => Object.keys(reducerModule)
   .reduce((actionMap, actionName) => ({
     ...actionMap,
     [actionName]: namespace + NAME_SPACE_FLAG + actionName
@@ -10,7 +11,7 @@ export const getActionMap = (reducerAndEffect, namespace) => Object.keys(reducer
 
 const getKey = (str) => str.substring(str.indexOf(NAME_SPACE_FLAG) + 1, str.length + 1)
 
-export const withReducer = ({ state, action, reducer, namespace = '' }) =>
+const withReducerModule = ({ state, action, reducer, namespace = '' }) =>
   Object.keys(reducer)
     .map(key => namespace + NAME_SPACE_FLAG + key)
     .includes(action.type)
@@ -19,14 +20,13 @@ export const withReducer = ({ state, action, reducer, namespace = '' }) =>
 
 export const createModel = (model) => {
   const { reducer, namespace } = model
-  const reducerModule = (state = model.state, action) => withReducer({ state, action, reducer, namespace })
-  reducerModule.action = getActionMap(reducer, namespace)
+  const reducerModule = (state = model.state, action) => withReducerModule({ state, action, reducer, namespace })
+  reducerModule[ACTION_NAME] = getActionMap(reducer, namespace)
   return reducerModule
 }
 
-
 export const setActionToStore = (store, reducerModules) => {
   Object.keys(reducerModules).forEach(moduleName => {
-    store[moduleName] = reducerModules[moduleName].action
+    store[moduleName] = reducerModules[moduleName][ACTION_NAME]
   })
 }
