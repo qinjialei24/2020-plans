@@ -15,6 +15,9 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = dispatch => ({
   add(payload) {
+    // dispatch({
+    //   type: store.counter.add
+    // })
     dispatch(store.counter.add)
   },
   minus() {
