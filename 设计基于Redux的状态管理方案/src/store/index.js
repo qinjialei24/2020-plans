@@ -1,7 +1,7 @@
 import { createStore, combineReducers } from "redux";
 import todo from "./modules/todo";
 import counter from "./modules/counter";
-import { setActionToStore } from "./util";
+import { setActionToStore } from "vuex-redux";
 
 const reducerModules = {
   todo,
