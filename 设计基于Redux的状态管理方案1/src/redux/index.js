@@ -1,12 +1,12 @@
 
-// redux 拥有dispath getState subscribe 三个方法
+// redux 拥有dispatch getState subscribe 三个方法
 const createStore = (reducer, initState = {})=>{
  let state =  initState
  const listeners = []
  function subscribe(listener) {
   listeners.push(listener)
  }
- function dispath (action) {
+ function dispatch (action) {
    state = reducer(state, action)
   for(let i = 0; i < listeners.length; i++){
     const listener = listeners[i]
@@ -18,7 +18,7 @@ const createStore = (reducer, initState = {})=>{
  }
  return {
   subscribe,
-  dispath,
+  dispatch,
   getState
  }
 }
@@ -39,6 +39,17 @@ const reducer = (state, action) =>{
     return state
  } 
 }
-const storr = createStore(reducer, {
+const combineReducers =(reducers)=>{
+  const reducerKeys = Object.keys(reducers)  
+  return function combination (state, action) { 
+    const nextState = {}
+    for(let i = 0;i<reducerKeys.length;i++) {
+      
+    }
+  }
+
+}
+const store = createStore(reducer, {
   count: 0
 })
+export default store

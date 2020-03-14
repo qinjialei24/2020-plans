@@ -1,23 +1,36 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import store from './redux/index.js'
 class App extends React.Component {
   constructor () {
     super()
     this.state = {
-      props:{
-        add:()=>{},
-        minus:()=>{}
-      }
+      store: store.getState()
     }
+    store.subscribe(()=>{
+      this.setState({
+        store: store.getState()
+      })
+    })
   }
     render() {
       return ( <div>
         <h3>counter value is:</h3>
         <hr />
-        <button onClick={this.state.props.add}>+</button>
-        <button onClick={this.state.props.minus}>-</button>
-        <h4>{this.state.props.count}</h4>
+        <button onClick={this.add}>+</button>
+        <button onClick={this.minus}>-</button>
+        <h4>{this.state.store.count}</h4>
       </div>)
+    }
+    add = ()=> {
+      store.dispatch({
+        type: 'INCREMENT'
+      })
+    }
+    minus = ()=> {
+      store.dispatch({
+        type: 'DECREMENT'
+      })
     }
 }
 
