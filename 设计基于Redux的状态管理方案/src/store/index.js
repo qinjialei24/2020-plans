@@ -1,23 +1,27 @@
-import { createStore, combineReducers } from "redux";
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import { composeWithDevTools } from 'redux-devtools-extension';
+import { setActionToStore, storeEnhancer } from "vuex-redux";
+
 import todo from "./modules/todo";
 import counter from "./modules/counter";
-import { setActionToStore } from "./util";
+
+const logger = store => dispatch => action => {
+  console.log("action", action)
+  dispatch(action)
+  console.log("store", store)
+}
 
 const reducerModules = {
   todo,
   counter,
 }
 
-const store = createStore(
-  combineReducers(reducerModules),
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-)
+
+const store = createStore(combineReducers(reducerModules), composeWithDevTools(
+  applyMiddleware(logger),
+  storeEnhancer
+  // other store enhancers if any
+));
 
 setActionToStore(store, reducerModules)
-
-const _dispatch = store.dispatch
-
-store.dispatch = (type, data) => _dispatch({ type, data })
-
-
 export default store

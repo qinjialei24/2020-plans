@@ -1,4 +1,4 @@
-import { createModel } from "../util";
+import { createModel } from "vuex-redux";
 
 const model = {
   namespace: 'counter',
