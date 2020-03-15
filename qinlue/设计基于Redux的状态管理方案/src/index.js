@@ -19,7 +19,7 @@ class App extends React.Component {
         <hr />
         <button onClick={this.add}>+</button>
         <button onClick={this.minus}>-</button>
-        <h4>{this.state.store.count}</h4>
+        <h4>{this.state.store.counterReducer.count}</h4>
       </div>)
     }
     add = ()=> {
