@@ -10,5 +10,5 @@
 - vue2.x版本 diff算法  
   - 资料：
     - [解析Vue diff算法](https://zhuanlan.zhihu.com/p/76384873)
-- vue双向绑定 
+- vue 双向绑定 
 - vue 模板编译
