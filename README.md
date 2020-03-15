@@ -1,16 +1,7 @@
 # 2020-plans
 
-## Doing
-- nestjs学习（20202-28 至 ）
-- Redux优化方案发布npm包
-
-## Done
-- nestjs学习
-  - 总结文章
-  - 项目代码地址 
-
-## 2020-plans
-
-## ![2020-plansTarget](./2020-plans.png)
-
-
+## Learning（2020-3-15）
+- redux源码及优化
+- vue2.x版本 diff算法  
+- vue双向绑定 
+- vue 模板编译
