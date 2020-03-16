@@ -66,7 +66,125 @@ store.dispatch({
 })
 
 ```
+以上代码首先通过创建一个createStore函数传入初始数据，函数内部定义state以及订阅容器变量。然后再分别创建订阅、发布、获取state函数，最后返回这三个函数。使用方法就是执行createStore传入initData，然后执行订阅。最后想要改变数据的时候通过dispatch触发数据更新。
 
-当然以上仅是一个简易版数据更改操作，并未涉及到action和reducer，后续会再继续完善。不过可以看出核心是通过发布订阅来完成数据的更新。
+当然以上仅是一个简易版数据更改操作，并未涉及到action和reducer，后续会再继续完善。
 
-### redux2.0(实现action和reducer)....
+
+### redux2.0(实现action和reducer)
+
+根据redux1.0代码可以发现数据是可以按照我们的要求改变，但是会遇到两个问题。首先就是我们对修改数据没有任何约束，它可以被任何人修改成任何属性。我们无法数据进行自定义修改。其次，根据官方文档修改数据的方法是通过dispatch()一个带有type属性的对象。所以根据这两点，再重新改写下。
+
+按照以上思路首先改写createStore函数中的dispatch函数，从原来的传入新数据改为传入action对象，且state也不能像之前一样赋值给传入的newState：
+
+```js
+
+let createStore = function(initState){
+    let state = initState;
+    //...省略
+    function dispatch(action){
+        state = reducer(state,action) //由于传入的是一个action对象，可以创建一个reducer的函数转换成数据
+    }
+
+}
+
+```
+
+由于dispatch改为接收一个action对象，所以我们需要创建reducer函数将传入的对象转换成数据：
+
+```js
+
+function reducer(state,action){
+    switch (action.type){
+        case 'INCREMENT':
+            return {
+                ...state,
+                count:state.count + 1
+            }
+        case 'DECREMENT':
+            return {
+                ...state,
+                count:state.count - 1
+            }
+        default:
+            return state;
+    }
+}
+
+```
+
+创建好reducer之后，需要把这个数据转换函数传递给createStore，结合下就是：
+
+```js
+
+let initState = {
+    count: 0
+}
+
+function reducer(state, action) {
+    switch (action.type) {
+        case 'INCREMENT':
+            return {
+                ...state,
+                count: state.count + 1
+            }
+        case 'DECREMENT':
+            return {
+                ...state,
+                count: state.count - 1
+            }
+        default:
+            return state;
+    }
+}
+
+const createStore = function (reducer, initState) {
+    let state = initState;
+    let listeners = [];
+
+    function subscribe(listener) {
+        listeners.push(listener)
+    }
+    function dispatch(action) {
+        state = reducer(state, action);
+        for (let i = 0; i < listeners.length; i++) {
+            const listener = listeners[i];
+            listener()
+        }
+    }
+    function getState() {
+        return state;
+    }
+    return {
+        subscribe,
+        dispatch,
+        getState
+    }
+}
+
+```
+
+然后我们就可以根据自定义的type来改变数据：
+
+```js
+
+let store = createStore(reducer,initState)
+
+store.subscribe(() => {
+    let state = store.getState()
+    console.log(`count的值是:${state.count}`);
+})
+//递增
+store.dispatch({
+    type:'INCREMENT'
+})
+//递减
+store.dispatch({
+    type:'DECREMENT'
+})
+//无效修改
+store.dispatch({
+    count:'aaa'
+})
+
+```
