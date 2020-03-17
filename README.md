@@ -15,3 +15,4 @@
     - [vue源码解析 -vue核心贡献者 hcysun](http://hcysun.me/vue-design/zh/essence-of-comp.html)
 - vue 双向绑定 
 - vue 模板编译
+  - [聊聊Vue.js的template编译 -阿里前端 染陌](https://www.zhihu.com/search?type=content&q=vue%E6%A8%A1%E6%9D%BF%E7%BC%96%E8%AF%91)
