@@ -188,3 +188,128 @@ store.dispatch({
 })
 
 ```
+
+### redux3.0(实现combineReducers)
+
+根据redux2.0我们可以自定义实现数据的更改，但是会发现一个问题。即在上面代码中，我们的initState只有一条数据，如果数据量增加，把所有的action写在一个reducer里面会十分庞大复杂。所以我们需要根据state拆分成多个对应的reducer函数，然后通过一个函数(combineReducers)整合。
+
+首先初始化state，里面包含两个数据：
+
+```js
+
+let initState = {
+    counter:{
+        count:0
+    },
+    info:{
+        name:'zs',
+        desc:'redux从0-1'
+    }
+}
+
+```
+
+然后分别定义他们的reducer：
+
+```js
+
+function counterReducer(state,action){
+    switch(action.type){
+        case 'INCREMENT':
+            return {
+                ...state,
+                count:state.count + 1
+            }
+        case 'DECREMENT':
+            return {
+                ..state,
+                count:state.count -1
+            }
+        default:
+            return state;
+    }
+}
+
+function infoReducer(state,action){
+    switch(action.type){
+        case 'SET_NAME':
+            return {
+                ...state,
+                name:action.name
+            }
+        case 'SET_DESC':
+            return {
+                ...state,
+                desc:action.desc
+            }
+    }
+}
+
+```
+
+定义好reducer之后就是实现combineReducer,实现combineReducers函数的思路就是：***遍历所有的reducer，执行完成之后整合成一个新的state。***
+
+
+```js
+
+function combineReducer(reducers){
+    const reducerKeys = Object.keys(reducers)
+
+    return function combineAction(state = {},action){
+        //生产合并新的state
+        const newState ={}
+        //遍历所有的reducer，最终返回一个合并后的state
+        for (let i = 0; i < reducerKeys.length; i++) {
+            const key = reducerKeys[i];
+            const reducer = reducers[key];
+            // 获取之前key的state
+            const previousStateForKey  = state[key];
+            //执行每个reducer函数，获取最新的state
+            const nextStateForKey = reducer(previousStateForKey,action);
+            newState[key] = nextStateForKey;
+        }
+        return newState;
+    }
+    
+}
+
+```
+
+然后来使用下combineReducer：
+
+```js
+
+let initState = {
+    counter:{
+        count:0
+    },
+    info:{
+        name:'zs',
+        desc:'redux从0-1'
+    }
+}
+
+
+const reducer = combineReducer({
+    counter: counterReducer,
+    info: InfoReducer
+})
+
+let store = createStore(reducer, initState);
+
+store.subscribe(() => {
+  let state = store.getState();
+  console.log(state.counter.count, state.info.name, state.info.description);
+});
+
+store.dispatch({
+    type:'INCREMENT'
+})
+
+store.dispatch({
+    type:'SET_NAME',
+    name:'ls'
+})
+
+
+```
