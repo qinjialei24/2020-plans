@@ -11,6 +11,7 @@ const match = {
   attrs: [],
   start: 0
 }
+
 html = html.substring(start[0].length)
 index += start[0].length
 let end, attr
