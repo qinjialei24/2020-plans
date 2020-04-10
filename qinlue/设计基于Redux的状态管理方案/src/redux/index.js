@@ -10,6 +10,10 @@ const createStore = (reducer, initState = {}, rewriteCreateStoreFunc)=>{
  const listeners = []
  function subscribe(listener) {
   listeners.push(listener)
+  return function unSubscribe () {
+  const index = listeners.indexOf(listener)
+  listeners.splice(index, 1)
+  }
  }
  function dispatch (action) {
    state = reducer(state, action)
@@ -96,7 +100,10 @@ const applyMiddleware = function (...middlewares){
       const store = oldCreateStore(reducer, initState)
        /*给每个 middleware 传下store，相当于 const logger = loggerMiddleware(store);*/
       /* const chain = [exception, time, logger]*/
-      const chain = middlewares.map((middleware)=> middleware(store))
+      /*const chain = middlewares.map(middleware => middleware(store));*/
+const simpleStore = { getState: store.getState };
+const chain = middlewares.map(middleware => middleware(simpleStore));
+      // const chain = middlewares.map((middleware)=> middleware(store))
       let dispatch = store.dispatch;
      /* 实现 exception(time((logger(dispatch))))*/
       chain.reverse().map((middleware)=>{
@@ -110,10 +117,10 @@ const applyMiddleware = function (...middlewares){
 }
 const rewriteCreateStoreFunc = applyMiddleware(exceptionMiddleware, timeMiddleware, loggerMiddleware);
 // 传rewriteCreateStoreFunc 函数则带中间件
-const store = createStore(reducer, undefined, rewriteCreateStoreFunc);
+const store = createStore(reducer, initState, rewriteCreateStoreFunc);
 // const next = store.dispatch
 // // 这里是这样，action 是通过 调用dispatch 方法传进去的 
 // // 把中间件当参数传给另外一个中间件，则另一个中间件执行的时候next 方法是方法的中间件 让这些中间件都变成一个函数接收一个action 参数
 // store.dispatch = exception(logger(time(next)))
 // console.log(store.dispatch)
-export default store
+// export default store

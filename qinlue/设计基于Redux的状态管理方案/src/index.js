@@ -7,11 +7,14 @@ class App extends React.Component {
     this.state = {
       store: store.getState()
     }
-    store.subscribe(()=>{
+    const unsubscribe = store.subscribe(()=>{
       this.setState({
         store: store.getState()
       })
     })
+    setTimeout(()=>{
+      unsubscribe()
+    },5000)
   }
     render() {
       return ( <div>
