@@ -7,7 +7,7 @@ const forReg = /^\(?\s*((?:[a-zA-Z_][\w]*)\s*(?:,\s*[a-zA-Z_][\w]*)?)\s*\)?\s+(?
 const dataReg = /\{\{([^{}]+)\}\}/g;
 
 // template to ast
-export function parse(template){
+export function parse(template) {
 	let index = 0; // 模板解析指针位置
 	let stack = [];
 	let currentAst = {};
