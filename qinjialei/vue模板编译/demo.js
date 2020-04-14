@@ -2,7 +2,7 @@ const ncname = '[a-zA-Z_][\\w\\-\\.]*'
 const qnameCapture = `((?:${ncname}\\:)?${ncname})`
 const startTagOpen = new RegExp(`^<${qnameCapture}`)
 const startTagClose = /^\s*(\/?)>/
-let html = `<div></div>`
+let html = `<div :id="3"></div>`
 let index = 0
 const start = html.match(startTagOpen)
 
