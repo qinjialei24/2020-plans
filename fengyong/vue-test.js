@@ -32,6 +32,7 @@ class Vue {
             if (timer) clearTimeout(timer);
             timer = setTimeout(_ => {
                 let newVNode = render.call(this);
+                console.log(newVNode)
                 this._update(vNode, newVNode);
                 vNode = newVNode;
             });
@@ -41,8 +42,10 @@ class Vue {
     _initState({ data, methods = {} }) {
         this._data = data;
         this._observe(data, (key, value) => {
-            data[key] = value;
-            Event.emit('update');
+            if (value != data[key]) {
+                data[key] = value;
+                Event.emit('update');
+            }
         });
         this._observe(methods, (key, value) => { })
     }
@@ -68,13 +71,10 @@ class Vue {
         let ast = new AST(), lastIndex = -1;
         while (html) {
             let start = html.match(startReg);
-            // console.log(RegExp.$1, RegExp.$2, RegExp.$3, RegExp.$2.split(/\s+/))
             if (start && start.index == 0) {
                 if (lastIndex == 0) ast.toChild();
                 let tag = start[1], attrStr = start[2];
-                //.reduce((a, b) => Object.assign(a, { [b.split('=')[0]]: b.split('=')[1] }), {})
                 let attr = attrStr.match(/(.+?=".*?")/g) || [];
-                // console.log(attr.map(v => v.trim()))
                 ast.append(new Node(tag, attr.map(v => v.trim())));
                 html = start[3].trim();
                 if (['input', 'img', 'br', 'pr'].find(v => v == tag)) {
@@ -94,7 +94,7 @@ class Vue {
     }
     _generate(ast) {
         var _children = '[]';
-        let { tag, attr, text, children } = ast;
+        let { tag, attr, text, children, key } = ast;
         if (children.length) {
             _children = '[' + children.map(v => this._generate(v)).join(',') + ']';
             //处理v-if产生的空白节点
@@ -107,10 +107,13 @@ class Vue {
         let _text = text, textReg = /\{\{(.+?)\}\}/g;
         if (text && textReg.test(text)) {
             _text = text.replace(textReg, (match, key) => '"+' + key + '+"').slice(2, -2)
+        } else {
+            _text = `"${text || ''}"`
         }
-
+        console.log(_text)
+        // console.log(_text)
         let _attr = JSON.stringify(attr).slice(1, -1);
-
+        // _attr = `key: "${key}",${_attr}`;
         //v-model
         if (attr['v-model']) {
             _attr += `,value: ${attr['v-model']}, "_@input": function(e){ ${attr['v-model']} = e.target.value; }`
@@ -121,53 +124,151 @@ class Vue {
                 let eventReg = /^\w+?\(.*\)/;
                 //判断是否有()
                 _attr += eventReg.test(value) ? `,"${key}": function($event){${value}}` : `,"${key}": function(){${value}()}`
+            } else if (key == ':key') {
+                _attr += `,key:${value}`
             }
         }
         //v-if
         if (attr['v-if']) {
-            return `${attr['v-if']} ? _c("${tag}",{${_attr}},${_text || '""'},${_children}) : "empty"`;
+            return `${attr['v-if']} ? _c("${tag}",{${_attr}},${_text || '""'},${_children},"${key}") : "empty"`;
         }
         //v-for
         if (attr['v-for']) {
             let forReg = attr['v-for'].match(/^(\w+)\s+in\s+(\w+)$/);
-            return `${forReg[2]}.map(function(${forReg[1]}, i){ return _c("${tag}",{${_attr}},${_text || '""'},${_children}); })`
+            return `${forReg[2]}.map(function(${forReg[1]}, i){ return _c("${tag}",{${_attr}},${_text || '""'},${_children},"${key}"); })`
         }
         //2020/4/14 计划下一步更新视图
 
-        return `_c("${tag}",{${_attr}},${_text || '""'},${_children})`;
+        return `_c("${tag}",{${_attr}},${_text || '""'},${_children},"${key}")`;
     }
-    _c(tag, attr, text, children) {
-        return new VNode(tag, attr, text, children);
+    _c(tag, attr, text, children, key) {
+        return new VNode(tag, attr, text, children, key);
     }
 
     _update(oldVNode, newVNode) {
-        console.log('update:', oldVNode, newVNode)
+        // console.log('update:', oldVNode, newVNode)
         if (newVNode) {
             //diff算法
+            this._patch_attr(oldVNode, newVNode);
+            if (oldVNode.children.length) {
+                let res = this._diff(oldVNode.children, newVNode.children);
+                console.log('diff:', res)
+                let children = this._patch_children(oldVNode, res);
+                children.forEach((vNode, i) => this._update(vNode, newVNode.children[i]));
+            }
         } else {
-            this._patch(this.$el.parentNode, oldVNode, this.$el);
+            console.log('初始化')
+            this._patch_create(this.$el.parentNode, oldVNode, this.$el);
             let node = this.$el.previousSibling;
             this.$el.parentNode.removeChild(this.$el);
             this.$el = node;
         }
     }
-    _patch(parentNode, vNode, refElm) {
-        if (vNode) {
-            vNode.elm = document.createElement(vNode.tag);
-            vNode.elm.textContent = vNode.value || vNode.text;
-            for (let [key, value] of Object.entries(vNode.data)) {
-                if (!/v-|:|@/.test(key)) {
-                    vNode.elm.setAttribute(key, value);
-                } else if (/@/.test(key)) {
-                    let fnReg = key.match(/@(\w+)/);
-                    vNode.elm.addEventListener(fnReg[1], value);
+    _equal(oldVNode, newVNode) {
+        return oldVNode.tag == newVNode.tag && oldVNode.key == newVNode.key;
+    }
+    _diff(oldVNode = [], newVNode = [], res = [], index = 0) {
+        let length = oldVNode.length, res1, res2, res3;
+        for (var i = 0; i < length; i++) {
+            let start = oldVNode[i], end = newVNode[i];
+            if (start && end && !this._equal(start, end)) {
+                index += i;
+                //交换
+                let endIndex = length - 1;
+                while (endIndex > i) {
+                    if (oldVNode[endIndex] == end) {
+                        let temp = oldVNode[endIndex], _oldVNode = oldVNode.map(v => v);
+                        _oldVNode[endIndex] = _oldVNode[i];
+                        _oldVNode[i] = temp;
+                        res1 = this._diff(_oldVNode.slice(i + 1), newVNode.slice(i + 1), res.concat({ type: 'change', index, endIndex: endIndex + index }), index + 1);
+                        break;
+                    }
+                    endIndex--;
                 }
+                // console.log(oldVNode.slice(i), newVNode.slice(i + 1))
+                //新增
+                res2 = this._diff(oldVNode.slice(i), newVNode.slice(i + 1), res.concat({ type: 'add', index, value: end }), index + 1);
+                // //删除
+                res3 = this._diff(oldVNode.slice(i + 1), newVNode.slice(i), res.concat({ type: 'delete', index, value: start }), index);
+                break;
             }
+
+        }
+        if (i == length) {
+            if (newVNode.length < length) {
+                return res.concat(oldVNode.slice(newVNode.length).map((value, j) => ({ type: 'delete', index: index + j + newVNode.length, value })));
+            } else if (newVNode.length > length) {
+                return res.concat(newVNode.slice(length).map((value, j) => ({ type: 'add', index: index + j + length, value })));
+            }
+        }
+        let result = [res1, res2, res3].filter(v => v);
+        if (result.length) {
+            return result.sort((a, b) => a.length - b.length).shift();
+        } else {
+            return res;
+        }
+    }
+    _patch_create(parentNode, vNode, refElm) {
+        if (vNode) {
+            this._create_element(vNode);
             if (vNode.children.length) {
-                vNode.children.forEach(v => this._patch(vNode.elm, v));
+                vNode.children.forEach(v => this._patch_create(vNode.elm, v));
             }
             parentNode.insertBefore(vNode.elm, refElm);
         }
+    }
+    _create_element(vNode) {
+        vNode.elm = document.createElement(vNode.tag);
+        vNode.elm.textContent = vNode.value || vNode.text;
+        for (let [key, value] of Object.entries(vNode.data)) {
+            if (!/v-|:|@/.test(key)) { //设置基础attr
+                vNode.elm.setAttribute(key, value);
+            } else if (/@/.test(key)) {//绑定原生方法
+                let fnReg = key.match(/@(\w+)/);
+                vNode.elm.removeEventListener(fnReg[1], value)
+                vNode.elm.addEventListener(fnReg[1], value);
+            }
+        }
+        return vNode;
+    }
+    _patch_attr(oldVNode, newVNode) {
+        let elm = oldVNode.elm;
+        newVNode.elm = elm;
+        if (this._equal(oldVNode, newVNode)) {
+            if (oldVNode.text != newVNode.text) {
+                elm.textContent = newVNode.text;
+            }
+            if (JSON.stringify(oldVNode.data) != JSON.stringify(newVNode.data)) {
+                for (let [key, value] of Object.entries(newVNode.data)) {
+                    if (typeof value != 'function' && value != oldVNode.data[key]) {
+                        if (key == 'value') elm.value = value;
+                        else {
+                            elm.setAttribute(key, value);
+                        }
+                    }
+                }
+                for (let [key, value] of Object.entries(oldVNode.data)) {
+                    if (!newVNode.data[key]) {
+                        console.log('删除', key)
+                        elm.removeAttribute(key);
+                    }
+                }
+            }
+        }
+    }
+    _patch_children(oldVNode, res) {
+        if (res.length) {
+            res.forEach(operate => {
+                if (operate.type == 'add') {
+                    oldVNode.elm.insertBefore(this._create_element(operate.value).elm, oldVNode.elm.children[operate.index])
+                    oldVNode.children.splice(operate.index, 0, operate.value);
+                }
+            })
+        }
+        return oldVNode.children;
+
+
+
     }
 }
 
@@ -188,8 +289,10 @@ class AST {
     constructor() {
         this.root = null;
         this.head = null;
+        this.key = 0;
     }
     append(Node) {
+        Node.key = `_${++this.key}`;
         this.child = Node;
         if (!this.root) {
             this.root = this.head = Node;
@@ -214,11 +317,12 @@ class AST {
 
 
 class VNode {
-    constructor(tag, data, text, children) {
+    constructor(tag, data, text, children, key) {
         this.tag = tag;
         this.data = data;
         this.text = text;
         this.children = children;
+        this.key = data.key || key;
     }
 }
 

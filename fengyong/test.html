@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 
 <head>
     <meta charset="UTF-8">
@@ -17,7 +17,8 @@
                 <input type="text" v-model='message2' />
             </div>
         </div>
-        <p v-for='item in list' @click='onAlert(item, $event)'>{{item}}</p>
+        <p v-for='item in list' @click='onAlert(item, $event)' :key='item'>{{item}}</p>
+        <button @click='onAdd'>新增</button>
     </div>
 </body>
 <script src='./vue-test.js'></script>
@@ -37,9 +38,17 @@
             onAlert(msg, e) {
                 console.log('222:', msg, e)
                 console.log(this)
+                this.show = true;
+                this.message2 = '哈哈'
+            },
+            onAdd() {
+                let list = this.list.map(v => v);
+                list.push(Date.now())
+                this.list = list;
             }
         }
     })
 </script>
+
 
 </html>
