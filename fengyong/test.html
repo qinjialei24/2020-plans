@@ -14,10 +14,10 @@
             <p v-if='show'>{{message2}}</p>
             <div>
                 <a href="">3</a>
-                <input type="text" v-model='message2'>
+                <input type="text" v-model='message2' />
             </div>
         </div>
-        <p v-for='item in list'>{{item}}</p>
+        <p v-for='item in list' @click='onAlert(item, $event)'>{{item}}</p>
     </div>
 </body>
 <script src='./vue-test.js'></script>
@@ -32,6 +32,12 @@
         },
         mounted() {
             // setTimeout(_ => this.message = '刚刚', 1000)
+        },
+        methods: {
+            onAlert(msg, e) {
+                console.log('222:', msg, e)
+                console.log(this)
+            }
         }
     })
 </script>

@@ -12,7 +12,7 @@ var Event = {
 }
 class Vue {
     constructor(options) {
-        this._initState(options.data);
+        this._initState(options);
         //根据el返回outerHTML
         let html = this._$mount(options.el);
         //根据html返回AST
@@ -27,23 +27,35 @@ class Vue {
         //更新真实dom
         this._update(vNode);
         options.mounted.call(this);
-        // Event.on('update', _ => {
-        //     this._update(ast);
-        // });
+        let timer = null;
+        Event.on('update', _ => {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(_ => {
+                let newVNode = render.call(this);
+                this._update(vNode, newVNode);
+                vNode = newVNode;
+            });
+            // this._update(ast);
+        });
     }
-    _initState(data) {
+    _initState({ data, methods = {} }) {
         this._data = data;
-        Object.keys(data).forEach(key => {
+        this._observe(data, (key, value) => {
+            data[key] = value;
+            Event.emit('update');
+        });
+        this._observe(methods, (key, value) => { })
+    }
+    _observe(obj, cb) {
+        Object.keys(obj).forEach(key => {
             Object.defineProperty(this, key, {
-                set(value) {
-                    data[key] = value;
-                    // Event.emit(key, value);
-                    // Event.emit('update');
+                set: value => {
+                    cb(key, value);
                 },
                 get() {
-                    return data[key];
+                    return obj[key];
                 }
-            })
+            });
         });
     }
     _$mount(el) {
@@ -81,59 +93,74 @@ class Vue {
         return ast.root;
     }
     _generate(ast) {
-        var children = '[]';
-        if (ast.children.length) {
-            children = '[' + ast.children.map(v => this._generate(v)).join(',') + ']';
+        var _children = '[]';
+        let { tag, attr, text, children } = ast;
+        if (children.length) {
+            _children = '[' + children.map(v => this._generate(v)).join(',') + ']';
             //处理v-if产生的空白节点
-            if (children.includes('"empty"')) children += '.filter(function(v){ return v != "empty";})';
+            if (_children.includes('"empty"')) _children += '.filter(function(v){ return v != "empty";})';
             //处理v-for产生的数组
-            if (children.includes('.map(')) children += '.flat()';
+            if (_children.includes('.map(')) _children += '.flat()';
         }
         // let vNode = new VNode(ast.tag, ast.attr, ast.text, children);
         //文本节点
-        let text = ast.text, textReg = /\{\{(.+?)\}\}/g;
+        let _text = text, textReg = /\{\{(.+?)\}\}/g;
         if (text && textReg.test(text)) {
-            text = ast.text.replace(textReg, (match, key) => '"+' + key + '+"').slice(2, -2)
+            _text = text.replace(textReg, (match, key) => '"+' + key + '+"').slice(2, -2)
         }
 
-        let attr = JSON.stringify(ast.attr);
+        let _attr = JSON.stringify(attr).slice(1, -1);
 
-        //v-if
-        if (ast.attr['v-if']) {
-            return `${ast.attr['v-if']} ? _c("${ast.tag}",${attr},${text || '""'},${children}) : "empty"`;
-        }
-        //v-for
-        if (ast.attr['v-for']) {
-            var forReg = ast.attr['v-for'].match(/^(\w+)\s+in\s+(\w+)$/);
-            return `${forReg[2]}.map(function(${forReg[1]}, i){ return _c("${ast.tag}",${attr},${text || '""'},${children}); })`
+        //v-model
+        if (attr['v-model']) {
+            _attr += `,value: ${attr['v-model']}, "_@input": function(e){ ${attr['v-model']} = e.target.value; }`
         }
         //@事件(原生)
-        // for (let [key, value] of Object.entries(ast.attr)) {
-        //     if (!/^@/.test(key)) {
-
-        //     }
-        // }
+        for (let [key, value] of Object.entries(attr)) {
+            if (/^@/.test(key)) {
+                let eventReg = /^\w+?\(.*\)/;
+                //判断是否有()
+                _attr += eventReg.test(value) ? `,"${key}": function($event){${value}}` : `,"${key}": function(){${value}()}`
+            }
+        }
+        //v-if
+        if (attr['v-if']) {
+            return `${attr['v-if']} ? _c("${tag}",{${_attr}},${_text || '""'},${_children}) : "empty"`;
+        }
+        //v-for
+        if (attr['v-for']) {
+            let forReg = attr['v-for'].match(/^(\w+)\s+in\s+(\w+)$/);
+            return `${forReg[2]}.map(function(${forReg[1]}, i){ return _c("${tag}",{${_attr}},${_text || '""'},${_children}); })`
+        }
         //2020/4/14 计划下一步更新视图
 
-        return `_c("${ast.tag}",${attr},${text || '""'},${children})`;
+        return `_c("${tag}",{${_attr}},${_text || '""'},${_children})`;
     }
     _c(tag, attr, text, children) {
         return new VNode(tag, attr, text, children);
     }
 
-    _update(ast) {
-        this._patch(this.$el.parentNode, ast, this.$el);
-        let node = this.$el.previousSibling;
-        this.$el.parentNode.removeChild(this.$el);
-        this.$el = node;
+    _update(oldVNode, newVNode) {
+        console.log('update:', oldVNode, newVNode)
+        if (newVNode) {
+            //diff算法
+        } else {
+            this._patch(this.$el.parentNode, oldVNode, this.$el);
+            let node = this.$el.previousSibling;
+            this.$el.parentNode.removeChild(this.$el);
+            this.$el = node;
+        }
     }
     _patch(parentNode, vNode, refElm) {
         if (vNode) {
             vNode.elm = document.createElement(vNode.tag);
             vNode.elm.textContent = vNode.value || vNode.text;
             for (let [key, value] of Object.entries(vNode.data)) {
-                if (!/^v-|:|@/.test(key)) {
+                if (!/v-|:|@/.test(key)) {
                     vNode.elm.setAttribute(key, value);
+                } else if (/@/.test(key)) {
+                    let fnReg = key.match(/@(\w+)/);
+                    vNode.elm.addEventListener(fnReg[1], value);
                 }
             }
             if (vNode.children.length) {
