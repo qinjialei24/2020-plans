@@ -110,7 +110,6 @@ class Vue {
         } else {
             _text = `"${text || ''}"`
         }
-        console.log(_text)
         // console.log(_text)
         let _attr = JSON.stringify(attr).slice(1, -1);
         // _attr = `key: "${key}",${_attr}`;
@@ -157,7 +156,6 @@ class Vue {
                 children.forEach((vNode, i) => this._update(vNode, newVNode.children[i]));
             }
         } else {
-            console.log('初始化')
             this._patch_create(this.$el.parentNode, oldVNode, this.$el);
             let node = this.$el.previousSibling;
             this.$el.parentNode.removeChild(this.$el);
