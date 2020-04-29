@@ -27,6 +27,7 @@ class MVVM{
 		try{
 			if (template) {
 				this._ast = parse(template);
+        console.log("MVVM -> mount -> this._ast", this._ast)
 			} else {
 				this._ast = parse(root.innerHTML);
 			}
