@@ -33,16 +33,16 @@ function parse(template) {
 				}
 				ast.attrs.push(attrItem)
 				advance(attr[0].length)
-				console.log("test -> ast", ast)
 			}
-			console.log("test -> end", end)
 
-			// if (end) {
-			// 	advance(end[0].length)
-			// 	// console.log("test -> end", end)
-			// 	console.log('template 的值是：', template);
-			// }
+			if (end) {
+				advance(end[0].length)
+				console.log("test -> end", end)
+			}
 
+
+			
+			console.log('template 的值是：', template);
 			return ast
 		}
 
@@ -55,13 +55,12 @@ function parse(template) {
 
 	function advance(step = 0) {
 		template = template.slice(step)
-		console.log("advance -> template", template)
 	}
 
 
 }
 
-const html = "<div id='root' v-if='true'></div>"
+const html = "<div id='root' v-if='true'> <h1>我是h1</h1> </div>"
 
 const ast = parse(html)
 console.log("ast", ast)
