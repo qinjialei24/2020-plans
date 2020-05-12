@@ -12,10 +12,10 @@ export function parse(template) {
 	let stack = [];
 	let currentAst = {};
 	let root = null;
-	while(template){
+	while (template) {
 		let tagStart = template.indexOf('<');
 		// 如果tagStart等于零，说明匹配到了标签
-		if (tagStart === 0 ) {
+		if (tagStart === 0) {
 			let start = template.match(tagStartReg);
 			if (start) {
 				handelStart(start);
@@ -37,7 +37,7 @@ export function parse(template) {
 			ast.parent = currentAst;
 		}
 	}
-	function handleText(text){
+	function handleText(text) {
 		const result = []
 		let lastIndex = 0
 		let match, index
@@ -55,7 +55,7 @@ export function parse(template) {
 		}
 		return result.join('+')
 	}
-	function handelStart(start){
+	function handelStart(start) {
 		let ast = {
 			type: 'tag',
 			name: start[1],
@@ -67,7 +67,7 @@ export function parse(template) {
 
 		// 匹配属性
 		let end, attr;
-		while(!(end = template.match(tagStartCloseReg)) && (attr = template.match(tagAttrReg))){
+		while (!(end = template.match(tagStartCloseReg)) && (attr = template.match(tagAttrReg))) {
 			if (attr[1] === "mvvm:if") {
 				ast.if = true;
 				ast.ifValue = attr[2] || attr[3];
@@ -75,7 +75,7 @@ export function parse(template) {
 				// 	ast.ifFalse = true;
 				// 	ast.ifValue = ast.ifValue.slice(1);
 				// }
-				ast.ifCondition = Object.assign({}, ast, {if: false});
+				ast.ifCondition = Object.assign({}, ast, { if: false });
 			} else if (attr[1] === "mvvm:else") {
 				ast.isElse = true;
 			} else if (attr[1] === "mvvm:for") {
@@ -85,7 +85,7 @@ export function parse(template) {
 				ast.forObj = forResult[2].trim();
 				let arr = forResult[1].split(/\s*,\s*/);
 				ast.forKey = arr[0];
-				if(arr.length === 1){
+				if (arr.length === 1) {
 					ast.forValue = arr[0];
 				} else {
 					ast.forValue = arr[1];
@@ -109,11 +109,11 @@ export function parse(template) {
 					};
 				};
 			};
-			// 不是单标签
+			// 不是自闭和标签
 			if (!end[1]) {
 				if (!root) {
 					root = ast;
-				} else if (!ast.isElse){
+				} else if (!ast.isElse) {
 					currentAst.children.push(ast);
 					ast.parent = currentAst;
 				}
@@ -122,7 +122,7 @@ export function parse(template) {
 			}
 		};
 	}
-	function step(length){
+	function step(length) {
 		index += length;
 		template = template.slice(length);
 	}
