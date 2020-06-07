@@ -1,1 +1,12 @@
-<p>template works!</p>
+<nz-card nzTitle="使用默认模板渲染：">
+  <app-list></app-list>
+</nz-card>
+
+<nz-card nzTitle="使用自定义模板渲染：">
+  <app-list [renderer]="myRenderer"></app-list>
+</nz-card>
+
+<ng-template #myRenderer let-data>
+  <h1>name：{{ data.name }}</h1>
+  <h1>age：{{ data.age }}</h1>
+</ng-template>
