@@ -3,10 +3,13 @@
 </nz-card>
 
 <nz-card nzTitle="使用自定义模板渲染：">
-  <app-list [renderer]="myRenderer"></app-list>
+  <app-list [customRenderer]="customRenderer"></app-list>
 </nz-card>
 
-<ng-template #myRenderer let-data>
+<ng-template #customRenderer let-data>
   <h1>name：{{ data.name }}</h1>
   <h1>age：{{ data.age }}</h1>
 </ng-template>
+
+<div>
+</div>

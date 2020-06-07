@@ -1,15 +1,13 @@
 <ul>
   <li *ngFor="let item of data">
     <ng-template
-      [ngTemplateOutlet]="renderer || defaultRenderer"
+      [ngTemplateOutlet]="customRenderer || defaultRenderer"
       [ngTemplateOutletContext]="{ $implicit: item }"
     ></ng-template>
   </li>
 
   <ng-template #defaultRenderer let-payload>
-    <span>age: {{ payload.age }}</span
-    ><br />
+    <span>age: {{ payload.age }}</span>
     <span>name: {{ payload.name }}</span>
-    <hr />
   </ng-template>
 </ul>

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, TemplateRef } from '@angular/core';
+import { Component, Input, TemplateRef } from '@angular/core';
 
 interface Payload {
   age: number;
@@ -10,7 +10,7 @@ interface Payload {
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.less']
 })
-export class ListComponent implements OnInit {
+export class ListComponent {
   @Input()
   data: Payload[] = [
     {
@@ -19,16 +19,9 @@ export class ListComponent implements OnInit {
     },
     {
       age: 12,
-      name: '小黑',
+      name: '老王',
     }
   ];
 
-  @Input() renderer: TemplateRef<{ $implicit: Payload; }>;
-
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+  @Input() customRenderer: TemplateRef<{ $implicit: Payload; }>;
 }
