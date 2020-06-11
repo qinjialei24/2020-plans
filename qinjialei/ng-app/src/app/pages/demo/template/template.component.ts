@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ModalService } from 'src/app/components/modal/modal.service';
 
 @Component({
   selector: 'app-template',
@@ -7,9 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TemplateComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private modalService: ModalService
+  ) {
+
+  }
 
   ngOnInit() {
+
   }
 
 }

@@ -6,10 +6,11 @@ import { DemoComponent } from './demo.component';
 import { ShareModule } from 'src/app/share/share.module';
 import { TemplateComponent } from './template/template.component';
 import { ListComponent } from './template/components/list/list.component';
+import { ModalServiceComponent } from './modal-service/modal-service.component';
 
 
 @NgModule({
-  declarations: [DemoComponent, TemplateComponent, ListComponent],
+  declarations: [DemoComponent, TemplateComponent, ListComponent, ModalServiceComponent],
   imports: [
     CommonModule,
     DemoRoutingModule,

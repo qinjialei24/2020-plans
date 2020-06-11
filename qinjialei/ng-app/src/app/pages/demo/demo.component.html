@@ -2,10 +2,12 @@
   <ul nz-menu nzMode="inline">
     <li nz-submenu nzTitle="模板相关" nzIcon="mail" nzOpen>
       <ul>
-        <li nz-menu-group nzTitle="Item 1">
+        <li nz-menu-group nzTitle="模板相关">
           <ul>
-            <li nz-menu-item nzSelected>Option 1</li>
-            <li nz-menu-item>Option 2</li>
+            <li nz-menu-item nzSelected>
+              <a [routerLink]="['template']">自定义模板渲染</a>
+            </li>
+            <li nz-menu-item  [routerLink]="['modalServiceComponent']" >使用 modal service</li>
           </ul>
         </li>
         <li nz-menu-group nzTitle="Item 2">
