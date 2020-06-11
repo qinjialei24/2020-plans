@@ -8,7 +8,7 @@ import { DemoModule } from './demo/demo.module';
   imports: [
     ShareModule,
     HomeModule,
-    DemoModule
+    DemoModule,
   ],
   exports: [
     HomeModule,
